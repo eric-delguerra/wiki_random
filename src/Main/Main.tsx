@@ -150,17 +150,18 @@ const WikiGuessGame: React.FC = () => {
         }
     }
 
-    if (isLoading) return <div>Chargement...</div>;
+    if (isLoading) return <div className="h-screen flex items-center justify-center font-bold text-xl">Chargement...</div>;
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
     return (
-        <div className="max-w-2xl mx-auto p-auto">
+        <div className="max-w-2xl mx-auto p-6">
             <style>
                 {`
             @keyframes revealAnimation {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
+             
             .revealed {
                 animation: revealAnimation 1s ease-in-out;
                 font-weight: bold;
@@ -173,7 +174,7 @@ const WikiGuessGame: React.FC = () => {
             `}
             </style>
             <h1 className="text-2xl font-bold mb-6">Devinez le titre de l'article Wikipédia</h1>
-            <p className={triesStyle() + ' mb-4 font-bold'} >Essais : {attempts}</p>
+
             <div className="bg-gray-200 p-4 rounded-lg mb-6">
                 <p className="font-bold mb-6">
                     {blurredContent.slice(0, wikiPage!.title.length)}
@@ -192,6 +193,7 @@ const WikiGuessGame: React.FC = () => {
                     Deviner
                 </button>
             </form>
+            <p className={triesStyle() + ' mb-4 font-bold'} >Essais : {attempts}</p>
             <div className="flex justify-evenly mb-6">
                 <span className="text-sm text-gray-600">
                     ■ : Lettres floutées
@@ -203,7 +205,7 @@ const WikiGuessGame: React.FC = () => {
 
             <div className="mb-6">
                 <p className="font-bold mb-2">Mots devinés :</p>
-                <div className="h-64 overflow-auto border border-gray-200 rounded-md p-128">
+                <div className="h-32 overflow-auto border border-gray-200 rounded-md p-128">
                     <GuessedWordList guessedWords={guessedWords} />
                 </div>
             </div>
@@ -222,9 +224,12 @@ const WikiGuessGame: React.FC = () => {
                 </button>
 
             </div>
-            {tips &&
-                helperDescription && <p className="revealed text-sm text-gray-600 bold tips">On cherche : "{helperDescription}"</p>
-            }
+            <div className='m-4'>
+                {
+                    tips &&
+                    helperDescription && <p className="revealed text-sm text-gray-600 bold tips">On cherche : "{helperDescription}"</p>
+                }
+            </div>
         </div>
     );
 }
