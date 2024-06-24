@@ -19,6 +19,8 @@ const WikiGuessGame: React.FC = () => {
     const [attempts, setAttempts] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [helperDescription, setHelperDescription] = useState<string>('');
+    const [tips, setTips] = useState<boolean>(false);
 
     useEffect(() => {
         fetchRandomWikiPage();
@@ -32,6 +34,7 @@ const WikiGuessGame: React.FC = () => {
             const data = await response.json();
             setWikiPage({ title: data.title, extract: data.extract });
             setBlurredContent(blurWords(data.title + ' ' + data.extract));
+            setHelperDescription(data.description);
         } catch (err) {
             setError("Erreur lors du chargement de la page Wikipedia. Veuillez réessayer.");
         }
@@ -118,63 +121,113 @@ const WikiGuessGame: React.FC = () => {
         fetchRandomWikiPage();
     }
 
+    const revealRandomVowel = () => {
+        if (!wikiPage) return;
+
+        const vowels = 'aeiouy';
+        const randomVowel = vowels[Math.floor(Math.random() * vowels.length)];
+        const fullContent = wikiPage.title + ' ' + wikiPage.extract;
+
+        let newBlurredContent = '';
+        for (let i = 0; i < fullContent.length; i++) {
+            if (fullContent[i].toLowerCase() === randomVowel) {
+                newBlurredContent += fullContent[i];
+            } else {
+                newBlurredContent += blurredContent[i];
+            }
+        }
+
+        setBlurredContent(newBlurredContent);
+    };
+
+    const triesStyle = () => {
+        if (attempts < 25) {
+            return 'text-green-500';
+        } else if (attempts < 50) {
+            return 'text-yellow-500';
+        } else {
+            return 'text-red-500';
+        }
+    }
+
     if (isLoading) return <div>Chargement...</div>;
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+        <div className="max-w-2xl mx-auto p-auto">
             <style>
                 {`
-          @keyframes revealAnimation {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          .revealed {
-            animation: revealAnimation 1s ease-in-out;
-            font-weight: bold;
-            color: #4CAF50;
-          }
-        `}
+            @keyframes revealAnimation {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .revealed {
+                animation: revealAnimation 1s ease-in-out;
+                font-weight: bold;
+                color: #4CAF50;
+            }
+            .tips {
+                font-size: 0.8rem;
+                color: #666!important;
+            }
+            `}
             </style>
-            <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Devinez le titre de l'article Wikipédia</h1>
-
-            <p>Essais : {attempts}</p>
-            <div style={{ backgroundColor: '#f0f0f0', padding: '15px', borderRadius: '5px', marginBottom: '20px' }}>
-                <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Titre et contenu floutés :</p>
+            <h1 className="text-2xl font-bold mb-6">Devinez le titre de l'article Wikipédia</h1>
+            <p className={triesStyle() + ' mb-4 font-bold'} >Essais : {attempts}</p>
+            <div className="bg-gray-200 p-4 rounded-lg mb-6">
+                <p className="font-bold mb-6">
+                    {blurredContent.slice(0, wikiPage!.title.length)}
+                </p>
                 <p dangerouslySetInnerHTML={{ __html: blurredContent }}></p>
             </div>
-            <form onSubmit={handleGuess} style={{ marginBottom: '20px' }}>
+            <form onSubmit={handleGuess} className="mb-6">
                 <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    style={{ padding: '5px', marginRight: '10px' }}
+                    className="px-3 py-2 border border-gray-300 rounded-md mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Entrez un mot"
                 />
-                <button type="submit" style={{ padding: '5px 10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}>
+                <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
                     Deviner
                 </button>
             </form>
-            <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                <span>
+            <div className="flex justify-evenly mb-6">
+                <span className="text-sm text-gray-600">
                     ■ : Lettres floutées
                 </span>
-                <span>
+                <span className="text-sm text-gray-600">
                     □ : Chiffres floutés
                 </span>
             </div>
 
-            <div>
-                <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Mots devinés :</p>
-                <button onClick={resetFoundWords} style={{ padding: '5px 10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>
-                    Recommencer
-                </button> <br />
-                <div style={{ height: 250, overflow: 'auto', }}>
+            <div className="mb-6">
+                <p className="font-bold mb-2">Mots devinés :</p>
+                <div className="h-64 overflow-auto border border-gray-200 rounded-md p-128">
                     <GuessedWordList guessedWords={guessedWords} />
                 </div>
             </div>
+            <div className="flex space-x-4 my-4" style={{ alignSelf: 'center', justifyContent: 'center' }}>
+                <button
+                    onClick={resetFoundWords}
+                    className="px-4 py-2 bg-green-300  rounded-md hover:bg-green-400 transition-colors"
+                >
+                    Recommencer
+                </button>
+                <button
+                    onClick={() => setTips(!tips)}
+                    className="px-4 py-2 bg-orange-300 text-white rounded-md hover:bg-orange-400 transition-colors "
+                >
+                    Avoir la description en indice
+                </button>
+
+            </div>
+            {tips &&
+                helperDescription && <p className="revealed text-sm text-gray-600 bold tips">On cherche : "{helperDescription}"</p>
+            }
         </div>
     );
-};
+}
+
 
 export default WikiGuessGame;
