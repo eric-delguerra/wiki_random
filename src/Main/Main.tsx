@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import GuessedWordRender from './GuessedWordsList';
+import GuessedWordList from './GuessedWordsList';
 
 interface WikiPage {
     title: string;
@@ -170,7 +170,7 @@ const WikiGuessGame: React.FC = () => {
                     Recommencer
                 </button> <br />
                 <div style={{ height: 250, overflow: 'auto', }}>
-                    <GuessedWordRender guessedWords={guessedWords} />
+                    <GuessedWordList guessedWords={guessedWords} />
                 </div>
             </div>
         </div>

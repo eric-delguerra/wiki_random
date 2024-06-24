@@ -9,7 +9,7 @@ interface GuessedWordProps {
     guessedWords: GuessedWord[];
 }
 
-const GuessedWord: React.FC<GuessedWordProps> = ({ guessedWords }) => {
+const GuessedWordList: React.FC<GuessedWordProps> = ({ guessedWords }) => {
     const tab = Object.values(guessedWords);
     return (
         <ol reversed>
@@ -23,4 +23,4 @@ const GuessedWord: React.FC<GuessedWordProps> = ({ guessedWords }) => {
     );
 };
 
-export default GuessedWord;
+export default GuessedWordList;
